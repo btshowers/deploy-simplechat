@@ -1,0 +1,140 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "cosmosDbLocation": {
+        "type": "string",
+        "allowedValues": [
+          "Central US",
+          "East US 2",
+          "West US 2"
+        ],
+        "defaultValue": "East US 2",
+        "metadata": {
+          "description": "The location/region for the CosmosDB account. Choose from Central US, East US 2, or West US 2."
+        }
+      }
+    },
+    "variables": {
+      "randomName": "[concat(uniqueString(resourceGroup().id), '-simplechat')]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Web/serverfarms",
+        "apiVersion": "2022-03-01",
+        "name": "[concat(variables('randomName'), '-linux-plan')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "P0v3",
+          "tier": "PremiumV3"
+        },
+        "properties": {
+          "reserved": true
+        }
+      },
+      {
+        "type": "Microsoft.Web/sites",
+        "apiVersion": "2022-03-01",
+        "name": "[concat(variables('randomName'), '-app')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Web/serverfarms', concat(variables('randomName'), '-linux-plan'))]"
+        ],
+        "properties": {
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', concat(variables('randomName'), '-linux-plan'))]",
+          "siteConfig": {
+            "linuxFxVersion": "PYTHON|3.12"
+          }
+        }
+      },
+      {
+        "type": "Microsoft.CognitiveServices/accounts",
+        "apiVersion": "2022-12-01",
+        "name": "[concat(variables('randomName'), '-openai')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "S0"
+        },
+        "kind": "OpenAI",
+        "properties": {}
+      },
+      {
+        "type": "Microsoft.Search/searchServices",
+        "apiVersion": "2020-08-01",
+        "name": "[concat(variables('randomName'), '-search')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "standard"
+        },
+        "properties": {
+          "replicaCount": 1,
+          "partitionCount": 1
+        }
+      },
+      {
+        "type": "Microsoft.DocumentDB/databaseAccounts",
+        "apiVersion": "2021-06-15",
+        "name": "[concat(variables('randomName'), '-cosmosdb')]",
+        "location": "[parameters('cosmosDbLocation')]",
+        "properties": {
+          "databaseAccountOfferType": "Standard",
+          "locations": [
+            {
+              "locationName": "[parameters('cosmosDbLocation')]",
+              "failoverPriority": 0,
+              "isZoneRedundant": false
+            }
+          ],
+          "capabilities": [
+            {
+              "name": "EnableNoSQLVectorSearch"
+            }
+          ],
+          "consistencyPolicy": {
+            "defaultConsistencyLevel": "Session"
+          }
+        }
+      },
+      {
+        "type": "Microsoft.CognitiveServices/accounts",
+        "apiVersion": "2022-12-01",
+        "name": "[concat(variables('randomName'), '-document-intelligence')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "S0"
+        },
+        "kind": "FormRecognizer",
+        "properties": {}
+      },
+      {
+        "type": "Microsoft.CognitiveServices/accounts",
+        "apiVersion": "2022-12-01",
+        "name": "[concat(variables('randomName'), '-content-safety')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "S0"
+        },
+        "kind": "ContentSafety",
+        "properties": {}
+      },
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2022-09-01",
+        "name": "[concat(uniqueString(resourceGroup().id), 'storage')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "Standard_LRS"
+        },
+        "kind": "StorageV2",
+        "properties": {
+          "supportsHttpsTrafficOnly": true
+        }
+      }
+    ],
+    "outputs": {
+      "appServiceUrl": {
+        "type": "string",
+        "value": "[format('https://{0}.azurewebsites.net', concat(variables('randomName'), '-app'))]"
+      }
+    }
+  }
