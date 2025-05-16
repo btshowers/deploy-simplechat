@@ -14,7 +14,7 @@ This repository contains an Azure Resource Manager (ARM) template to deploy the 
 
 Click the button below to deploy the resources to your Azure subscription:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https%3A%2F%2Fraw.githubusercontent.com%2Fbtshowers%2Fdeploy-simplechat%2Frefs%2Fheads%2Fmain%2FsimpleChatARM.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbtshowers%2Fdeploy-simplechat%2Frefs%2Fheads%2Fmain%2FsimpleChatARM.json)
 
 ## Parameters
 
