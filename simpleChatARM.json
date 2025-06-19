@@ -79,6 +79,7 @@
         "kind": "GlobalDocumentDB",
         "properties": {
           "databaseAccountOfferType": "Standard",
+          "publicNetworkAccess": "Enabled",
           "locations": [
             {
               "locationName": "[parameters('cosmosDbLocation')]",
