@@ -73,9 +73,10 @@
       },
       {
         "type": "Microsoft.DocumentDB/databaseAccounts",
-        "apiVersion": "2021-06-15",
+        "apiVersion": "2025-05-01-preview",
         "name": "[concat(variables('randomName'), '-cosmosdb')]",
         "location": "[parameters('cosmosDbLocation')]",
+        "kind": "GlobalDocumentDB",
         "properties": {
           "databaseAccountOfferType": "Standard",
           "locations": [
@@ -92,7 +93,16 @@
           ],
           "consistencyPolicy": {
             "defaultConsistencyLevel": "Session"
-          }
+          },
+          "isVirtualNetworkFilterEnabled": false,
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "dependsOn": [],
+          "minimalTlsVersion": "Tls12",
+          "enableMultipleWriteLocations": false,
+          "capacityMode": "Provisioned",
+          "enableFreeTier": false,
+          "disableLocalAuth": false
         }
       },
       {
@@ -135,6 +145,14 @@
       "appServiceUrl": {
         "type": "string",
         "value": "[format('https://{0}.azurewebsites.net', concat(variables('randomName'), '-app'))]"
+      },
+      "cosmosDbUri": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', concat(variables('randomName'), '-cosmosdb')), '2021-06-15').documentEndpoint]"
+      },
+      "cosmosDbPrimaryKey": {
+        "type": "string",
+        "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', concat(variables('randomName'), '-cosmosdb')), '2021-06-15').primaryMasterKey]"
       }
     }
   }
